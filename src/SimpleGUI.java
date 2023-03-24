@@ -9,6 +9,8 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.Font;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
@@ -17,7 +19,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-public class SimpleGUI extends JFrame implements ActionListener, ItemListener {
+public class SimpleGUI extends JFrame implements ActionListener, ItemListener, ChangeListener {
 
     private JTextArea textArea;
     private JTextField textField;
@@ -44,6 +46,10 @@ public class SimpleGUI extends JFrame implements ActionListener, ItemListener {
         menu1.add(menuItem1);
         menu1.add(menuItem2);
         JMenu menu2 = new JMenu("Help");
+        JMenuItem menuItem3 = new JMenuItem("FAQ");
+        JMenuItem menuItem4 = new JMenuItem("About");
+        menu2.add(menuItem3);
+        menu2.add(menuItem4);
 
         // add "File" and "Help" menus to the MenuBar
         menuBar.add(menu1);
@@ -75,6 +81,8 @@ public class SimpleGUI extends JFrame implements ActionListener, ItemListener {
         textField = new JTextField(10); // accepts upto 10 characters
         JButton sendButton = new JButton("Send");
         JButton resetButton = new JButton("Reset");
+        JButton openButton = new JButton("Open");
+        JButton windowButton = new JButton("Window");
 
         // create checkboxes
         checkBox1 = new JCheckBox("Yes");
@@ -90,6 +98,8 @@ public class SimpleGUI extends JFrame implements ActionListener, ItemListener {
         panel.add(textField);
         panel.add(sendButton);
         panel.add(resetButton);
+        panel.add(openButton);
+        panel.add(windowButton);
         panel.add(checkBox1);
         panel.add(checkBox2);
 
@@ -111,13 +121,28 @@ public class SimpleGUI extends JFrame implements ActionListener, ItemListener {
         //setting up buttons to use ActionListener interface and actionPerformed method
         sendButton.addActionListener(this);
         resetButton.addActionListener(this);
+        openButton.addActionListener(this);
+        windowButton.addActionListener(this);
+
+        menuItem1.addActionListener(this);
+        menuItem2.addActionListener(this);
+        menuItem3.addActionListener(this);
+        menuItem4.addActionListener(this);
 
         //setting up checkboxes to use ItemListener interface and itemStateChanged method
         checkBox1.addItemListener(this);
         checkBox2.addItemListener(this);
 
+        slider.addChangeListener(this);
         // display the frame!
         setVisible(true);
+    }
+
+    public void stateChanged(ChangeEvent event){
+        Object source = event.getSource();
+        JSlider slider = (JSlider) source;
+        int value = slider.getValue();
+        textArea.setText("" + value);
     }
 
     // ActionListener interface method, called when a button is clicked
@@ -125,15 +150,54 @@ public class SimpleGUI extends JFrame implements ActionListener, ItemListener {
         // cast ae to a JButton object since we want to call the getText method on it;
         // casting is needed since getSource() returns Object type, NOT a JButton
         Object source = ae.getSource();
-        JButton button = (JButton) source;
-        String text = button.getText();
+        if(source instanceof JButton) {
+            JButton button = (JButton) source;
+            String text = button.getText();
 
-        if (text.equals("Send")) {
-            welcomeLabel.setText("Send pressed!");
-            String textss = textField.getText();
-            textArea.append(textss);
-        } else if (text.equals("Reset")) {
-            welcomeLabel.setText("Reset pressed!");
+            if (text.equals("Send")) {
+                welcomeLabel.setText("Send pressed!");
+                String textss = textField.getText();
+                textArea.append(textss);
+            } else if (text.equals("Reset")) {
+                welcomeLabel.setText("Reset pressed!");
+                textArea.setText("");
+                textField.setText("");
+                checkBox1.setSelected(false);
+                checkBox2.setSelected(false);
+            } else if (text.equals("Open")) {
+                JFrame frame = new JFrame("Look at me!");
+                welcomeLabel.setText("Open pressed!");
+                setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setSize(150, 100);
+                frame.setLocation(350, 100);
+                JLabel label = new JLabel("HELLO!!");
+                JPanel panel = new JPanel();
+                panel.add(label);
+                frame.add(panel, BorderLayout.NORTH);
+                frame.setVisible(true);
+            } else if (text.equals("Window")) {
+                JFrame frame = new JFrame("Yay");
+                welcomeLabel.setText("Window pressed!");
+                setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setSize(200, 350);
+                frame.setLocation(20, 120);
+                JLabel label = new JLabel("Good Morning:D");
+                JPanel panel = new JPanel();
+                panel.add(label);
+                frame.add(panel, BorderLayout.NORTH);
+                frame.setVisible(true);
+            }
+        } else if(source instanceof JMenuItem) {
+            JMenuItem menuItem = (JMenuItem) source;
+            String text = menuItem.getText();
+            textField.setText(text);
+            if (text.equals("Open")) {
+                textField.setText("Open");
+            }else if(text.equals("About")){
+                textField.setText("About");
+            }
+        } else if(source instanceof JPanel){
+
         }
     }
 
